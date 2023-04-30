@@ -42,7 +42,7 @@ body {
     top: 50%;
     left: 50%;
 
-    /* background-color: white; */    
+    display: none;
 }
 
 #alarm-marquee {
@@ -59,11 +59,14 @@ body {
 
 #alarm-marquee-text {
     position: absolute;
+    transform: translateX(0%);
+
+    left: 100%;
 
     width: fit-content;
     height: 100%;
 
-    animation: marquee 6s linear infinite;
+    white-space: nowrap;
 }
 
 #alarm-type {
@@ -73,5 +76,23 @@ body {
     position: absolute;
     transform: translateX(-50%);
 
+    left: 50%;
+}
+
+/* button for starting the alarm */
+#start-alarm {
+    width: 15%;
+    height: 10%;
+
+    font-family: "VCR EAS", monospace;
+    font-size: inherit;
+
+    background-color: black;
+    color: white;
+
+    position: absolute;
+    transform: translate(-50%, -50%);
+
+    top: 50%;
     left: 50%;
 }
