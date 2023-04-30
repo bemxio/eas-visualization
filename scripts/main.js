@@ -1,6 +1,6 @@
 // utility functions
-const sleep = (miliseconds) => {
-    return new Promise((resolve) => setTimeout(resolve, miliseconds));
+const sleep = (seconds) => {
+    return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
 };
 
 const playAudio = (audio) => {
@@ -11,6 +11,9 @@ const playAudio = (audio) => {
 
 // module aliases
 const SAME = window.SAME;
+
+// other audio elements
+const attentionTone = new Audio("assets/attention.wav");
 
 // elements on the page
 const button = document.getElementById("start-alarm");
@@ -47,7 +50,7 @@ button.addEventListener("click", async () => {
     container.style.display = "block";
 
     for (let iteration = 0; iteration < 3; iteration++) {
-        await sleep(1000);
+        await sleep(1);
 
         if (iteration == 0) {
             marquee.style.animation = "marquee 15s linear infinite";
@@ -55,4 +58,9 @@ button.addEventListener("click", async () => {
 
         await playAudio(audio);
     }
+
+    await sleep(1);
+    await playAudio(attentionTone);
+
+    await sleep(3);
 });
