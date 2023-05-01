@@ -67,6 +67,9 @@ const speakTTS = (utterance) => {
 // constant values for codes/names etc.
 const constants = retrieveJSON("assets/constants.json");
 
+// a boolean for checking if the simulation is running
+let isPlaying = false;
+
 // audio elements
 const attentionTone = new Audio("assets/attention.wav");
 const tail = new Audio("data:audio/wav;base64," + btoa(SAME.Encoder.encode(null)));
@@ -195,6 +198,12 @@ utterance.pitch = 1;
 
 // start the simulation when the button is clicked
 document.addEventListener("click", async () => {
+    if (isPlaying) {
+        return;
+    } else {
+        isPlaying = true;
+    }
+
     preStart.style.display = "none";
     container.style.display = "block";
 
