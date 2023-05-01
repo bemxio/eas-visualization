@@ -152,8 +152,9 @@ button.addEventListener("click", async () => {
     await sleep(1);
     await playAudio(attentionTone);
 
+    await sleep(2);
+
     for (let iteration = 0; iteration < 2; iteration++) {
-        await sleep(2);
         await speakTTS(utterance);
     }
 
