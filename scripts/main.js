@@ -193,4 +193,8 @@ button.addEventListener("click", async () => {
 });
 
 // print the objects to the console for debugging
-console.log(SAME, TTS, constants);
+console.log(SAME, TTS);
+console.log(constants);
+
+console.log(text);
+console.log(ttsText);
