@@ -72,7 +72,7 @@ const attentionTone = new Audio("assets/attention.wav");
 const tail = new Audio("data:audio/wav;base64," + btoa(SAME.Encoder.encode(null)));
 
 // elements on the page
-const button = document.getElementById("start-alarm");
+const preStart = document.getElementById("pre-start");
 const container = document.getElementById("alarm");
 
 const title = document.getElementById("alarm-title");
@@ -194,8 +194,8 @@ utterance.rate = 1;
 utterance.pitch = 1;
 
 // start the simulation when the button is clicked
-button.addEventListener("click", async () => {
-    button.style.display = "none";
+document.addEventListener("click", async () => {
+    preStart.style.display = "none";
     container.style.display = "block";
 
     for (let iteration = 0; iteration < 3; iteration++) {
