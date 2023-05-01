@@ -16,6 +16,32 @@ const retrieveJSON = (path) => {
     return JSON.parse(request.responseText);
 };
 
+const headerToMessage = (header) => {
+    const values = header.split("-");
+    const locationAndLength = values[3].split("+");
+
+    const message = {
+        originator: values[1],
+        sender: values[5],
+        code: values[2],
+
+        region: {
+            subdiv: locationAndLength[0].substring(0, 1),
+            stateCode: locationAndLength[0].substring(1, 3),
+            countyCode: locationAndLength[0].substring(3, 6)
+        },
+
+        length: parseInt(locationAndLength[1]),
+        start: {
+            day: parseInt(values[4].substring(0, 3)),
+            hour: parseInt(values[4].substring(3, 5)),
+            minute: parseInt(values[4].substring(5, 7))
+        }
+    };
+
+    return message;
+};
+
 const getTTSVoice = () => {
     const voices = TTS.getVoices();
 
@@ -51,28 +77,13 @@ const container = document.getElementById("alarm");
 
 const title = document.getElementById("alarm-title");
 const marquee = document.getElementById("alarm-marquee-text");
+
 const invoker = document.getElementById("alarm-invoker");
+const issued = document.getElementById("alarm-issued");
 const type = document.getElementById("alarm-type");
 
 // the SAME header message & the date
-const message = {
-    originator: "PEP",
-    sender: "WHITEHSE",
-    code: "EAN",
-
-    region: {
-        subdiv: "0",
-        stateCode: "11",
-        countyCode: "001"
-    },
-
-    length: 600,
-    start: {
-        day: 123,
-        hour: 5,
-        minute: 30
-    }
-};
+const message = headerToMessage("ZCZC-WXR-TOR-236033+0030-2021706-PLATT   ");
 
 const date = new Date(
     2023,                                                   // year
@@ -116,8 +127,13 @@ text += constants.countyCode[message.region.stateCode][message.region.countyCode
 text += " " + constants.stateCode[message.region.stateCode] + ". ";
 
 ttsText += "for: ";
-ttsText += constants.countyCode[message.region.stateCode][message.region.countyCode];
-ttsText += " in " + constants.stateName[message.region.stateCode] + ", ";
+ttsText += constants.countyCode[message.region.stateCode][message.region.countyCode] + " in ";
+
+if (message.region.subdiv != "0") {
+    ttsText += constants.direction[message.region.subdiv] + " ";
+} 
+
+ttsText += constants.stateName[message.region.stateCode] + ", ";
 
 const formattedDate = date.toLocaleString("en-US", {
     month: "2-digit",
@@ -159,6 +175,10 @@ marquee.innerText = text;
 
 invoker.innerText = constants.originator[message.originator];
 type.innerText = constants.code[message.code];
+
+if (constants.consonantCodes.includes(message.code)) {
+    issued.textContent += "n";
+}
 
 // generate the audio
 const wave = SAME.Encoder.encode(message);

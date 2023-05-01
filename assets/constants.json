@@ -3536,5 +3536,16 @@
         "EAN", 
         "EAT", 
         "EQW"
-    ]
+    ],
+    "direction": {
+        "1": "northwest",
+        "2": "northcentral",
+        "3": "northeast",
+        "4": "western",
+        "5": "central",
+        "6": "eastcentral",
+        "7": "southwest",
+        "8": "southcentral",
+        "9": "southeast"
+    }
 }
