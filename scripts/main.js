@@ -221,7 +221,7 @@ button.addEventListener("click", async () => {
 
     for (let iteration = 0; iteration < 3; iteration++) {
         await playAudio(tail);
-        await sleep(0.7);
+        await sleep(1);
     }
 });
 
