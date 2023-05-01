@@ -25,9 +25,15 @@ const playAudio = (audio) => {
     });
 };
 
+const speakTTS = (utterance) => {
+    return new Promise((resolve) => {
+        TTS.speak(utterance); utterance.addEventListener("end", resolve);
+    });
+};
+
 // other audio elements
 const attentionTone = new Audio("assets/attention.wav");
-//const tail = new Audio("assets/tail.wav");
+const tail = new Audio("data:audio/wav;base64," + btoa(SAME.Encoder.encode(null)));
 
 // elements on the page
 const button = document.getElementById("start-alarm");
@@ -148,9 +154,11 @@ button.addEventListener("click", async () => {
 
     for (let iteration = 0; iteration < 2; iteration++) {
         await sleep(2);
-        await TTS.speak(utterance);
+        await speakTTS(utterance);
     }
 
-    await sleep(1);
-    //await playAudio(tail);
+    for (let iteration = 0; iteration < 3; iteration++) {
+        await sleep(1);
+        await playAudio(tail);
+    }
 });
