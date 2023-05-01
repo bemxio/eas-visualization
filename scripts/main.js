@@ -169,7 +169,7 @@ button.addEventListener("click", async () => {
         await sleep(1);
 
         if (iteration == 0) {
-            marquee.style.animation = "marquee 25s linear infinite";
+            marquee.style.animation = "marquee 30s linear infinite";
         }
 
         await playAudio(audio);
