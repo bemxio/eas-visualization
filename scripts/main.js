@@ -2,11 +2,18 @@
 const SAME = window.SAME;
 const TTS = window.speechSynthesis;
 
-console.log(SAME, TTS);
-
 // utility functions
 const sleep = (seconds) => {
     return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
+};
+
+const retrieveJSON = (path) => {
+    const request = new XMLHttpRequest();
+
+    request.open("GET", path, false);
+    request.send(null);
+
+    return JSON.parse(request.responseText);
 };
 
 const getTTSVoice = () => {
@@ -31,7 +38,10 @@ const speakTTS = (utterance) => {
     });
 };
 
-// other audio elements
+// constant values for codes/names etc.
+const constants = retrieveJSON("assets/constants.json");
+
+// audio elements
 const attentionTone = new Audio("assets/attention.wav");
 const tail = new Audio("data:audio/wav;base64," + btoa(SAME.Encoder.encode(null)));
 
@@ -44,7 +54,7 @@ const marquee = document.getElementById("alarm-marquee-text");
 const invoker = document.getElementById("alarm-invoker");
 const type = document.getElementById("alarm-type");
 
-// the SAME header message
+// the SAME header message & the date
 const message = {
     originator: "PEP",
     sender: "WHITEHSE",
@@ -64,8 +74,17 @@ const message = {
     }
 };
 
+const date = new Date(
+    2023,                                                   // year
+    0,                                                      // month (0 since day of the year is used) 
+    message.start.day,                                      // day (in this case, the day of the year)
+    message.start.hour + Math.floor(message.length / 100),  // hour
+    message.start.minute + (message.length % 100)           // minute
+);
+
 // create the message for the scrolling text and the TTS
 let text = "";
+let ttsText = "";
 
 if (message.originator == "PEP") {
     text += "A ";
@@ -75,7 +94,7 @@ if (message.originator == "PEP") {
     text += "The ";
 }
 
-text += SAME.Values.originator[message.originator] + " ";
+text += constants.originator[message.originator] + " ";
 
 if (message.originator == "CIV") {
     text += "have issued ";
@@ -83,32 +102,37 @@ if (message.originator == "CIV") {
     text += "has issued ";
 }
 
-if (["ADR", "AVA", "AVW", "EAN", "EAT", "EQW"].includes(message.code)) {
+if (constants.consonantCodes.includes(message.code)) {
     text += "an ";
 } else {
     text += "a ";
 }
 
-text += SAME.Values.code[message.code] + " for the following counties: ";
+text += constants.code[message.code] + " ";
+ttsText += text;
 
-text += SAME.Values.countyCode[message.region.stateCode][message.region.countyCode];
-text += " " + SAME.Values.stateCode[message.region.stateCode] + ". ";
+text += "for the following counties: ";
+text += constants.countyCode[message.region.stateCode][message.region.countyCode];
+text += " " + constants.stateCode[message.region.stateCode] + ". ";
 
-const utterance = new SpeechSynthesisUtterance(text);
-const date = new Date(2023, 0, message.start.day, message.start.hour, message.start.minute);
+ttsText += "for: ";
+ttsText += constants.countyCode[message.region.stateCode][message.region.countyCode];
+ttsText += " in " + constants.stateName[message.region.stateCode] + ". ";
 
-text += "Effective Until " + date.toLocaleString("en-US", {
+const formattedDate = date.toLocaleString("en-US", {
     month: "2-digit",
     day: "2-digit",
     year: "2-digit",
 
     hour: "2-digit",
     minute: "2-digit",
+    second: "2-digit",
 
     hour12: true,
     timeZoneName: "short"
-}).replace(",", "") + ".";
+});
 
+text += "Effective Until " + formattedDate.replace(",", "") + ".";
 text += "   " + message.sender;
 
 // fill the text on the page
@@ -120,12 +144,14 @@ if (message.originator == "PEP" || message.originator == "EAS") {
 
 marquee.innerText = text;
 
-invoker.innerText = SAME.Values.originator[message.originator];
-type.innerText = SAME.Values.code[message.code];
+invoker.innerText = constants.originator[message.originator];
+type.innerText = constants.code[message.code];
 
 // generate the audio
 const wave = SAME.Encoder.encode(message);
+
 const audio = new Audio("data:audio/wav;base64," + btoa(wave));
+const utterance = new SpeechSynthesisUtterance(ttsText);
 
 // set the voice settings
 utterance.voice = getTTSVoice();
@@ -165,3 +191,6 @@ button.addEventListener("click", async () => {
         await sleep(0.7);
     }
 });
+
+// print the objects to the console for debugging
+console.log(SAME, TTS, constants);
