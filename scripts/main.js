@@ -86,7 +86,14 @@ const issued = document.getElementById("alarm-issued");
 const type = document.getElementById("alarm-type");
 
 // the SAME header message & the date
-const message = headerToMessage("ZCZC-WXR-TOR-236033+0030-2021706-PLATT   ");
+const header = prompt("Enter the SAME header text: ");
+let message = null;
+
+try {
+    message = headerToMessage(header);
+} catch (error) {
+    alert("Invalid SAME header text!\nIf you know it's correct, please make sure it only has one location code."); window.location.reload();
+};
 
 const date = new Date(
     2023,                                                   // year
@@ -235,8 +242,5 @@ document.addEventListener("click", async () => {
 });
 
 // print the objects to the console for debugging
-console.log(SAME, TTS);
-console.log(constants);
-
-console.log(text);
+console.log(header, message);
 console.log(ttsText);
