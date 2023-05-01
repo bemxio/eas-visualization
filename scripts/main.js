@@ -158,8 +158,10 @@ button.addEventListener("click", async () => {
         await speakTTS(utterance);
     }
 
+    await sleep(1);
+
     for (let iteration = 0; iteration < 3; iteration++) {
-        await sleep(1);
         await playAudio(tail);
+        await sleep(0.7);
     }
 });
