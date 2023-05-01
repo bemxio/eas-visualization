@@ -117,7 +117,7 @@ text += " " + constants.stateCode[message.region.stateCode] + ". ";
 
 ttsText += "for: ";
 ttsText += constants.countyCode[message.region.stateCode][message.region.countyCode];
-ttsText += " in " + constants.stateName[message.region.stateCode] + ". ";
+ttsText += " in " + constants.stateName[message.region.stateCode] + ", ";
 
 const formattedDate = date.toLocaleString("en-US", {
     month: "2-digit",
@@ -129,10 +129,23 @@ const formattedDate = date.toLocaleString("en-US", {
     second: "2-digit",
 
     hour12: true,
+
+    timeZone: "UTC",
     timeZoneName: "short"
+});
+const formattedTime = date.toLocaleString("en-US", {
+    hour: "numeric",
+    minute: "numeric",
+
+    hour12: true,
+
+    timeZone: "UTC",
+    timeZoneName: "long"
 });
 
 text += "Effective Until " + formattedDate.replace(",", "") + ".";
+ttsText += "until " + formattedTime + ".";
+
 text += "   " + message.sender;
 
 // fill the text on the page
