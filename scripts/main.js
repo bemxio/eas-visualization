@@ -2,6 +2,8 @@
 const SAME = window.SAME;
 const TTS = window.speechSynthesis;
 
+console.log(SAME, TTS);
+
 // utility functions
 const sleep = (seconds) => {
     return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
@@ -25,11 +27,16 @@ const playAudio = (audio) => {
 
 // other audio elements
 const attentionTone = new Audio("assets/attention.wav");
+//const tail = new Audio("assets/tail.wav");
 
 // elements on the page
 const button = document.getElementById("start-alarm");
 const container = document.getElementById("alarm");
+
+const title = document.getElementById("alarm-title");
 const marquee = document.getElementById("alarm-marquee-text");
+const invoker = document.getElementById("alarm-invoker");
+const type = document.getElementById("alarm-type");
 
 // the SAME header message
 const message = {
@@ -39,8 +46,8 @@ const message = {
 
     region: {
         subdiv: "0",
-        stateCode: "00",
-        countyCode: "000"
+        stateCode: "11",
+        countyCode: "001"
     },
 
     length: 600,
@@ -51,16 +58,73 @@ const message = {
     }
 };
 
+// create the message for the scrolling text and the TTS
+let text = "";
+
+if (message.originator == "PEP") {
+    text += "A ";
+} else if (message.originator == "EAS") {
+    text += "An ";
+} else if (message.originator == "WXR") {
+    text += "The ";
+}
+
+text += SAME.Values.originator[message.originator] + " ";
+
+if (message.originator == "CIV") {
+    text += "have issued ";
+} else {
+    text += "has issued ";
+}
+
+if (["ADR", "AVA", "AVW", "EAN", "EAT", "EQW"].includes(message.code)) {
+    text += "an ";
+} else {
+    text += "a ";
+}
+
+text += SAME.Values.code[message.code] + " for the following counties: ";
+
+text += SAME.Values.countyCode[message.region.stateCode][message.region.countyCode];
+text += " " + SAME.Values.stateCode[message.region.stateCode] + ". ";
+
+const utterance = new SpeechSynthesisUtterance(text);
+const date = new Date(2023, 0, message.start.day, message.start.hour, message.start.minute);
+
+text += "Effective Until " + date.toLocaleString("en-US", {
+    month: "2-digit",
+    day: "2-digit",
+    year: "2-digit",
+
+    hour: "2-digit",
+    minute: "2-digit",
+
+    hour12: true,
+    timeZoneName: "short"
+}).replace(",", "") + ".";
+
+text += "   " + message.sender;
+
+// fill the text on the page
+if (message.originator == "PEP" || message.originator == "EAS") {
+    title.innerText = "NATIONAL ALERT";
+} else {
+    title.innerText = "EMERGENCY ALERT SYSTEM";
+}
+
+marquee.innerText = text;
+
+invoker.innerText = SAME.Values.originator[message.originator];
+type.innerText = SAME.Values.code[message.code];
+
 // generate the audio
 const wave = SAME.Encoder.encode(message);
-
 const audio = new Audio("data:audio/wav;base64," + btoa(wave));
-const utterance = new SpeechSynthesisUtterance("The National Weather Service has issued a tornado warning for the following counties: Cleveland, McClain, Oklahoma.");
 
 // set the voice settings
 utterance.voice = getTTSVoice();
 
-utterance.volume = 1;
+utterance.volume = 1.5;
 utterance.rate = 1;
 utterance.pitch = 1;
 
@@ -73,7 +137,7 @@ button.addEventListener("click", async () => {
         await sleep(1);
 
         if (iteration == 0) {
-            marquee.style.animation = "marquee 15s linear infinite";
+            marquee.style.animation = "marquee 25s linear infinite";
         }
 
         await playAudio(audio);
@@ -82,6 +146,11 @@ button.addEventListener("click", async () => {
     await sleep(1);
     await playAudio(attentionTone);
 
-    await sleep(2);
-    await TTS.speak(utterance);
+    for (let iteration = 0; iteration < 2; iteration++) {
+        await sleep(2);
+        await TTS.speak(utterance);
+    }
+
+    await sleep(1);
+    //await playAudio(tail);
 });
